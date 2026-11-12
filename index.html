@@ -393,25 +393,38 @@
           fills.forEach(function(f){ f.style.width = f.getAttribute('data-w') + '%'; });
         }
 
-        /* Scroll-spy: doi .active + dua link active vao giua menu (chi cuon NGANG
-           trong .sec-nav). block:'nearest' dam bao KHONG cuon doc ca trang
-           (loi giat trang ngay truoc la do scrollIntoView mac dinh cuon ca doc). */
+        /* Scroll-spy: doi .active + dua link active vao tam nhin cua menu.
+           Menu cuon bang nav.scrollTo behavior:'auto' (nhay ngay, khong animation)
+           va CHI khi link active that su nam ngoai tam nhin — cuon 'smooth' moi
+           lan doi muc se xep hang / chen nhau gay hien tuong menu giat qua lai.
+           Khi bam menu, khoa spy 1.2s de observer khong lat active qua cac muc
+           trung gian trong luc trang dang cuon mem toi muc dich. */
         var nav = document.querySelector('.sec-nav');
         var navLinks = document.querySelectorAll('.sec-nav a');
         var secs = ['story','plot','special','opinion','final'].map(function(id){ return document.getElementById(id); }).filter(Boolean);
+        var spyLockedUntil = 0;
         navLinks.forEach(function(a){
-          a.addEventListener('click', function(){ setActive(a.getAttribute('href').slice(1)); });
+          a.addEventListener('click', function(){
+            spyLockedUntil = Date.now() + 1200;
+            setActive(a.getAttribute('href').slice(1));
+          });
         });
         function setActive(id){
           navLinks.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href') === '#' + id); });
           var active = nav ? nav.querySelector('a.active') : null;
           if (active && nav && nav.scrollWidth > nav.clientWidth) {
-            active.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', inline: 'center', block: 'nearest'});
+            var navRect = nav.getBoundingClientRect();
+            var aRect = active.getBoundingClientRect();
+            var left = nav.scrollLeft + (aRect.left - navRect.left);
+            var right = left + active.offsetWidth;
+            if (left < nav.scrollLeft + 4 || right > nav.scrollLeft + nav.clientWidth - 4) {
+              nav.scrollTo({left: Math.max(0, left - (nav.clientWidth - active.offsetWidth) / 2), behavior: 'auto'});
+            }
           }
         }
         if ('IntersectionObserver' in window && secs.length) {
           var spy = new IntersectionObserver(function(entries){
-            entries.forEach(function(e){ if (e.isIntersecting) setActive(e.target.id); });
+            entries.forEach(function(e){ if (e.isIntersecting && Date.now() >= spyLockedUntil) setActive(e.target.id); });
           }, {rootMargin:'-5% 0px -85% 0px'});
           secs.forEach(function(s){ spy.observe(s); });
         }
