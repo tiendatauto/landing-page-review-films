@@ -108,10 +108,6 @@
       .facts div:last-child{border-bottom:none}
       .facts dt{font-family:"Archivo",sans-serif;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);padding-top:2px;flex:none}
       .facts dd{margin:0;text-align:right;font-weight:600}
-      .ratings{margin:6px 20px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center}
-      .ratings .r{border:1px solid var(--line);padding:12px 4px 10px;background:var(--paper)}
-      .ratings .r b{font-family:"Playfair Display",serif;font-size:22px;display:block;line-height:1}
-      .ratings .r span{font-family:"Archivo",sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;display:block;margin-top:6px;line-height:1.4}
       .cast{margin-top:26px;background:var(--paper-2);border:1px solid var(--line);padding:20px}
       .cast h3{font-family:"Archivo",sans-serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin:0 0 14px;color:var(--ink-faint);font-weight:800}
       .cast ul{list-style:none;margin:0;padding:0}
@@ -162,7 +158,6 @@
       }
       @media (max-width:520px){
         .bar-row{grid-template-columns:104px 1fr 38px;gap:10px}
-        .ratings{grid-template-columns:1fr 1fr 1fr;gap:6px}
         article p{font-size:16.5px}
         article .lead{font-size:18.5px}
       }
@@ -313,12 +308,6 @@
             <div><dt>Runtime</dt><dd>102 min</dd></div>
             <div><dt>Rated</dt><dd>PG</dd></div>
           </dl>
-          <h3>Critics' scores</h3>
-          <div class="ratings">
-            <div class="r"><b>97%</b><span>Rotten Tomatoes</span></div>
-            <div class="r"><b>85</b><span>Metacritic / 100</span></div>
-            <div class="r"><b>8.2</b><span>IMDb / 10</span></div>
-          </div>
         </div>
 
         <div class="cast">
@@ -410,6 +399,9 @@
         var nav = document.querySelector('.sec-nav');
         var navLinks = document.querySelectorAll('.sec-nav a');
         var secs = ['story','plot','special','opinion','final'].map(function(id){ return document.getElementById(id); }).filter(Boolean);
+        navLinks.forEach(function(a){
+          a.addEventListener('click', function(){ setActive(a.getAttribute('href').slice(1)); });
+        });
         function setActive(id){
           navLinks.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href') === '#' + id); });
           var active = nav ? nav.querySelector('a.active') : null;
@@ -420,7 +412,7 @@
         if ('IntersectionObserver' in window && secs.length) {
           var spy = new IntersectionObserver(function(entries){
             entries.forEach(function(e){ if (e.isIntersecting) setActive(e.target.id); });
-          }, {rootMargin:'-30% 0px -60% 0px'});
+          }, {rootMargin:'-5% 0px -85% 0px'});
           secs.forEach(function(s){ spy.observe(s); });
         }
       })();
